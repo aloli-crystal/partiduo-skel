@@ -1,0 +1,11 @@
+nl:
+  skel_ui:
+    index:
+      title: "Ontvangen boekingen"
+      intro: "De extensie registreert elke geboekte boeking (gebeurtenis entry.posted), binnen de transactie van de boeking."
+      received:
+        one: "%{count} boeking ontvangen."
+        other: "%{count} boekingen ontvangen."
+      entry: "Boeking"
+      received_at: "Ontvangen op"
+      empty: "Nog geen boeking ontvangen."

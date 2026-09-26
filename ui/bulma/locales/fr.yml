@@ -1,0 +1,11 @@
+fr:
+  skel_ui:
+    index:
+      title: "Écritures reçues"
+      intro: "L'extension consigne chaque écriture enregistrée (événement entry.posted), dans la transaction de l'écriture."
+      received:
+        one: "%{count} écriture reçue."
+        other: "%{count} écritures reçues."
+      entry: "Écriture"
+      received_at: "Reçue le"
+      empty: "Aucune écriture reçue pour l'instant."

@@ -1,0 +1,8 @@
+nl:
+  skel:
+    module:
+      name: "Extensieskelet"
+    permissions:
+      view: "De pagina van de referentie-extensie bekijken"
+    menu:
+      skel: "Skelet"

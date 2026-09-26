@@ -1,0 +1,8 @@
+fr:
+  skel:
+    module:
+      name: "Squelette d'extension"
+    permissions:
+      view: "Voir la page de l'extension de référence"
+    menu:
+      skel: "Squelette"

@@ -1,0 +1,22 @@
+{# SPDX-License-Identifier: AGPL-3.0-or-later. Page de l'extension de référence SKEL : trace observable de l'abonnement à entry.posted. #}{% extend "ui/base.html" %}
+{% block title %}{% translate "skel.menu.skel" %}{% endblock title %}
+{% block crumbs %}<li>{% translate "core.menu.extension" %}</li><li>{% translate "skel.menu.skel" %}</li>{% endblock crumbs %}
+{% block heading %}{% translate "skel.menu.skel" %} <span class="pd-ext">SKEL</span>{% endblock heading %}
+{% block content %}
+<section class="pd-panel" aria-labelledby="skel-received-title">
+  <header><h2 id="skel-received-title">{% translate "skel_ui.index.title" %}</h2></header>
+  <div class="pd-body">
+    <p class="pd-muted">{% translate "skel_ui.index.intro" %}</p>
+    <p class="mt-3" data-skel-count>{{ received }}</p>
+    {% if entries %}
+    <table class="table is-fullwidth is-striped mt-3">
+      <caption class="is-sr-only">{% translate "skel_ui.index.title" %}</caption>
+      <thead><tr><th scope="col">{% translate "skel_ui.index.entry" %}</th><th scope="col">{% translate "skel_ui.index.received_at" %}</th></tr></thead>
+      <tbody>{% for entry in entries %}<tr><td>{{ entry.entry_id }}</td><td>{{ entry.received_at }}</td></tr>{% endfor %}</tbody>
+    </table>
+    {% else %}
+    <p class="pd-muted mt-3">{% translate "skel_ui.index.empty" %}</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock content %}

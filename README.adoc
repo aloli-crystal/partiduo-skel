@@ -1,0 +1,165 @@
+= partiduo-skel — extension de référence de Partiduo
+:toc: left
+:toc-title: Table des matières
+:icons: font
+
+*Partiduo* est le portage en Crystal de https://noalyss.eu[NOALYSS], logiciel
+libre de comptabilité créé et maintenu par *Dany De Bontridder*. Partiduo
+n'est pas un projet officiel NOALYSS.
+
+Ce dépôt est l'*extension minimale conforme* au contrat d'extension
+(ADR-003 D8), successeur de l'extension `SKEL` de NOALYSS
+(`noalyss-plugins/skel`). *Chaque portage d'extension part de lui* : copier le
+dépôt, remplacer `skel`/`SKEL` par le nom de l'extension, puis écrire son
+métier.
+
+La spécification est dans `../partiduo-docs/` (ADR-003 contrat d'extension,
+ADR-005 D4 interface des extensions, ADR-006 activation) ; la référence du
+registre, des permissions et des événements est
+`../partiduo-app/doc/api/modules.adoc`. Les décisions propres à ce dépôt sont
+consignées dans `../partiduo-app/DECISIONS.adoc` (préfixe `D-SKEL-`).
+
+== Ce que montre l'extension
+
+[cols="1,3",options="header"]
+|===
+|Élément du contrat |Dans SKEL
+
+|Manifeste (ADR-003 D2)
+|`src/skel/manifest.cr` : code `SKEL`, version, `requires_core "~> 0.1"`,
+interface `ui "bulma"`.
+
+|Permission (D4)
+|`skel.view`, libellé `skel.permissions.view`, cochée dans les profils.
+Une extension réelle nomme ses permissions `<app>.<objet>.<action>`
+(convention C1 du cœur, DECISIONS D-SKEL-001).
+
+|Menu
+|`SKEL` sous la rubrique `EXTENSION` du socle, route `skel:index`, visible
+avec `skel.view`.
+
+|Modèle et migration (D5)
+|`Skel::ReceivedEntry`, table `skel_received_entry` ;
+`src/skel/migrations/0001_create_skel_received_entry.cr`.
+
+|Abonnement (D7)
+|`on("entry.posted")` : chaque écriture enregistrée est consignée
+(`Skel::Journal.record`), dans la transaction de l'écriture.
+
+|Contrat public
+|`Skel::Api` (`src/skel/api/skel.cr`) : `summary`, `received_entries`,
+permission `skel.view`, `ModuleDisabled` si l'extension est inactive.
+
+|Interface (D3, ADR-005 D4)
+|`ui/bulma/` : une page montée par `partiduo-ui-bulma` sous `/ext/SKEL/`,
+qui ne cite que `Skel::Api` et `Partiduo::Api`. Le contrôle d'accès est fait
+par l'interface, avant le handler.
+|===
+
+== Organisation
+
+[source]
+----
+src/
+├── partiduo-skel.cr        # point d'entrée du shard : require "partiduo-skel"
+├── partiduo-skel/cli.cr    # migrations : require "partiduo-skel/cli"
+└── skel/                   # métier (application Marten « skel »)
+    ├── app.cr              # Skel::App, Skel::INSTALLED_APPS
+    ├── manifest.cr         # Partiduo::Modules.register do … end
+    ├── models/             # tables skel_*
+    ├── migrations/
+    ├── services/           # interne
+    ├── api/skel.cr         # contrat public : module Skel::Api
+    └── locales/            # fr, en, nl
+ui/
+└── bulma/                  # interface pour partiduo-ui-bulma (application « skel_ui »)
+    ├── bulma.cr            # routes, montage sous /ext/SKEL/ : require "partiduo-skel/ui/bulma"
+    ├── handlers/
+    ├── templates/skel/     # gabarits, qui étendent ui/base.html
+    └── locales/            # libellés d'écran skel_ui.*, fr, en, nl
+config/settings/            # composition de développement et de test
+spec/                       # specs (cœur + interface + extension)
+----
+
+== Intégration dans une distribution
+
+[source,yaml]
+----
+dependencies:
+  partiduo-skel:
+    path: ../partiduo-skel
+----
+
+[source,crystal]
+----
+require "partiduo-ui-bulma/partiduo_ui"
+require "partiduo-skel"
+require "partiduo-skel/ui/bulma"
+
+Marten.configure do |config|
+  config.installed_apps = config.installed_apps + Skel::INSTALLED_APPS + Skel::Ui::INSTALLED_APPS
+end
+----
+
+et, pour la ligne de commande (migrations), `require "partiduo-skel/cli"`
+après `require "partiduo/cli"`.
+
+L'extension est compilée dans la distribution mais *inactive* tant que
+l'instance ne l'active pas : `partiduo-provision --with skel` (avec `skel`
+dans `PARTIDUO_MODULES`), ou l'administrateur par
+`Partiduo::Api::Modules.activate(actor, "SKEL")`.
+
+== Prérequis et installation
+
+* Crystal 1.19.1, PostgreSQL 18 par socket Unix (`/tmp/.s.PGSQL.5432`) ;
+* les dépôts voisins `../partiduo-app` et `../partiduo-ui-bulma`, et les shards
+  maison de `prod-crystal/` (voir `shard.override.yml`).
+
+[source,sh]
+----
+SKIP_MARTEN_CLI_PRECOMPILATION=1 shards install
+----
+
+== Specs
+
+Chaque agent ou job utilise sa propre base, dont le nom contient `test` ;
+elle est reconstruite par les migrations (cœur et extension) à chaque passage.
+
+[source,sh]
+----
+createdb --encoding=UTF8 partiduo_test_skel
+DATABASE_URL="postgres:///partiduo_test_skel?host=/tmp" crystal spec
+----
+
+[cols="1,3",options="header"]
+|===
+|Fichier |Vérifie
+
+|`spec/skel/activation_spec.cr`
+|manifeste conforme et traduit ; inactive par défaut ; activation par
+l'administrateur et au provisionnement ; désactivation qui garde les données ;
+refus du contrat sans `skel.view`.
+
+|`spec/skel/events_spec.cr`
+|réception de `entry.posted` (publié par le bus du cœur), rien si inactive,
+annulation avec la transaction, charge utile incohérente refusée.
+
+|`spec/ui/page_spec.cr`
+|page `/ext/SKEL/` : 404 si inactive, connexion exigée, affichée à un profil
+qui a `skel.view` et à l'administrateur, refusée (403) aux autres, traduite.
+
+|`spec/architecture/conventions_spec.cr`
+|en-têtes SPDX, mêmes clés en fr/en/nl, tables `skel_*`, `ui/bulma/` limité à
+`Partiduo::Api` et `Skel::Api`.
+|===
+
+== Ligne de commande
+
+`crystal run manage.cr -- <commande>` compose le cœur, l'interface et
+l'extension : `genmigrations skel` après une modification d'un modèle,
+`migrate` sur une base de développement.
+
+== Licence
+
+GNU Affero General Public License v3 ou ultérieure (`LICENSE`). Chaque fichier
+source commence par `# SPDX-License-Identifier: AGPL-3.0-or-later`.

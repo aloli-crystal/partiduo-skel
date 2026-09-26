@@ -1,0 +1,11 @@
+en:
+  skel_ui:
+    index:
+      title: "Received entries"
+      intro: "The extension records every posted entry (entry.posted event), within the entry's transaction."
+      received:
+        one: "%{count} entry received."
+        other: "%{count} entries received."
+      entry: "Entry"
+      received_at: "Received on"
+      empty: "No entry received yet."

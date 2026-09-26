@@ -1,0 +1,8 @@
+en:
+  skel:
+    module:
+      name: "Extension skeleton"
+    permissions:
+      view: "View the reference extension page"
+    menu:
+      skel: "Skeleton"
