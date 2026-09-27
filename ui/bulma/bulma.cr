@@ -13,7 +13,8 @@
 # puis ajoute `Skel::Ui::INSTALLED_APPS` à ses applications Marten.
 #
 # Ce dossier ne parle au métier que par `Skel::Api` et `Partiduo::Api`
-# (vérifié par `spec/architecture/ui_boundary_spec.cr`) ; le contrôle d'accès
+# (vérifié par `spec/architecture/conventions_spec.cr`, exemple « ne parle au
+# cœur, depuis ui/bulma, que par Partiduo::Api ») ; le contrôle d'accès
 # est fait par l'interface, avant le handler, à partir du manifeste.
 require "../../src/partiduo-skel"
 

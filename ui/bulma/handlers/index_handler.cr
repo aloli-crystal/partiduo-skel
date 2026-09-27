@@ -13,7 +13,7 @@ module Skel
         entries = summary.latest.map do |entry|
           {
             "entry_id"    => entry.entry_id.to_s,
-            "received_at" => entry.received_at.to_s("%Y-%m-%d %H:%M"),
+            "received_at" => fmt.datetime(entry.received_at),
           }
         end
         page("skel/index.html", {

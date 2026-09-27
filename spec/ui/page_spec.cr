@@ -40,6 +40,8 @@ describe "Page de l'extension SKEL sous /ext/SKEL/ (ADR-003 D3, ADR-005 D4)" do
     response.html.should contain("2 écritures reçues.")
     response.html.should contain("<td>42</td>")
     response.html.should contain("<td>43</td>")
+    # Horodatage présenté par PartiduoUi::Format#datetime (langue de l'utilisateur).
+    response.html.should match(%r{<td>\d{2}/\d{2}/\d{4} \d{2}:\d{2}</td>})
   end
 
   it "s'affiche pour l'administrateur, qui a toutes les permissions actives" do

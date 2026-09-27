@@ -8,11 +8,16 @@
 #   que l'interface monte sous `/ext/SKEL/` (D3) ; libellé `skel.menu.skel`.
 # * `on("entry.posted")` : chaque écriture enregistrée est consignée dans la
 #   table `skel_received_entry` (D7), dans la transaction de l'écriture.
+# * `depends_on "ACCOUNTING"` : seule la Comptabilité publie `entry.posted` ;
+#   une extension déclare les modules dont elle dépend (ADR-006 D2) —
+#   activation refusée sans eux, et eux ne se désactivent pas tant qu'elle
+#   est active.
 Partiduo::Modules.register do
   code "SKEL"
   name "skel.module.name"
   version "0.1.0"
   requires_core "~> 0.1"
+  depends_on "ACCOUNTING"
 
   permission "skel.view"
 

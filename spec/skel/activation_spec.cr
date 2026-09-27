@@ -21,7 +21,9 @@ describe "Extension SKEL : manifeste et activation (ADR-003 D2, D4 ; ADR-006 D2)
     manifest.subscribed_events.should eq(["entry.posted"])
     manifest.uis.map(&.path).should eq(["ui/bulma"])
     Partiduo::Modules.structure_errors.should be_empty
-    Partiduo::Modules.dependency_errors(manifest, Set{Skel::CODE}).should be_empty
+    manifest.depends_on.should eq(["ACCOUNTING"])
+    Partiduo::Modules.dependency_errors(manifest, Set{Skel::CODE, "ACCOUNTING"}).should be_empty
+    Partiduo::Modules.dependency_errors(manifest, Set{Skel::CODE}).should_not be_empty
   end
 
   it "traduit son nom, sa permission et son menu en fr, en et nl" do
@@ -61,6 +63,23 @@ describe "Extension SKEL : manifeste et activation (ADR-003 D2, D4 ; ADR-006 D2)
 
     Partiduo::Api::Modules.activate(admin, "skel").value!.active.should be_true
     Skel::Api.summary(skel_viewer).latest.map(&.entry_id).should eq([42_i64])
+  end
+
+  it "refuse l'activation sans la Comptabilité, qui publie entry.posted (ADR-006 D2)" do
+    with_active_modules("invoicing") do
+      result = Partiduo::Api::Modules.activate(admin, "skel")
+      result.error_keys.should eq(["modules.errors.activation.missing_dependency"])
+      Partiduo::Api::Modules.get(admin, "skel").active.should be_false
+    end
+  end
+
+  it "empêche de désactiver la Comptabilité tant que SKEL est active" do
+    with_active_modules("accounting,invoicing") do
+      Partiduo::Api::Modules.activate(admin, "skel").success?.should be_true
+      result = Partiduo::Api::Modules.deactivate(admin, "accounting")
+      result.errors.map { |error| error.params["dependent"]? }.should contain("SKEL")
+      Partiduo::Api::Modules.get(admin, "accounting").active.should be_true
+    end
   end
 
   it "s'active au provisionnement d'une instance (`partiduo-provision --with skel`)" do
