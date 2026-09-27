@@ -27,63 +27,9 @@ require "../src/partiduo-skel"
 require "../ui/bulma/bulma"
 require "../config/settings/base"
 require "../config/settings/**"
+require "./demo/browser"
 
 module Demo
-  # Navigateur en mémoire : cookies, en-tête Host de l'instance, jeton CSRF
-  # repris de la dernière page lue.
-  class Browser
-    getter jar = ::HTTP::Cookies.new
-    @csrf : String? = nil
-
-    def initialize(@host : String, @locale : String = "fr")
-      @chain = ::HTTP::Server.build_middleware([
-        Marten::Server::Handlers::Error.new,
-        Marten::Server::Handlers::Middleware.new,
-        Marten::Server::Handlers::Routing.new,
-      ] of ::HTTP::Handler)
-    end
-
-    def get(path : String) : ::HTTP::Client::Response
-      perform("GET", path)
-    end
-
-    # Formulaire : la page `form_path` est lue d'abord (jeton CSRF).
-    def submit(form_path : String, data : Hash(String, String), action : String = form_path) : ::HTTP::Client::Response
-      get(form_path)
-      post(action, data)
-    end
-
-    def post(path : String, data : Hash(String, String) = {} of String => String) : ::HTTP::Client::Response
-      form = data.dup
-      form["csrftoken"] = @csrf.to_s
-      perform("POST", path, URI::Params.encode(form))
-    end
-
-    def follow(response : ::HTTP::Client::Response) : ::HTTP::Client::Response
-      get(response.headers["Location"])
-    end
-
-    private def perform(method : String, path : String, body : String? = nil) : ::HTTP::Client::Response
-      headers = ::HTTP::Headers{"Host" => @host, "Accept-Language" => @locale, "User-Agent" => "partiduo-demo"}
-      headers["Content-Type"] = "application/x-www-form-urlencoded" if body
-      request = ::HTTP::Request.new(method, path, headers, body)
-      @jar.add_request_headers(request.headers)
-      io = IO::Memory.new
-      response = ::HTTP::Server::Response.new(io)
-      @chain.call(::HTTP::Server::Context.new(request, response))
-      response.close
-      io.rewind
-      result = ::HTTP::Client::Response.from_io(io)
-      result.cookies.each do |cookie|
-        cookie.expired? || cookie.value.empty? ? @jar.delete(cookie.name) : (@jar << cookie)
-      end
-      if token = result.body.match(/name="csrftoken" value="([^"]+)"/).try(&.[1])
-        @csrf = token
-      end
-      result
-    end
-  end
-
   class Run
     getter failures = 0
 
