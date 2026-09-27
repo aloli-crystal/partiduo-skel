@@ -157,7 +157,19 @@ qui a `skel.view` et à l'administrateur, refusée (403) aux autres, traduite.
 
 `crystal run manage.cr -- <commande>` compose le cœur, l'interface et
 l'extension : `genmigrations skel` après une modification d'un modèle,
-`migrate` sur une base de développement.
+`migrate` sur une base de développement. Construit, le même point d'entrée
+sert de `--manage` à `bin/partiduo-provision` pour créer une instance avec
+SKEL (`--with skel`).
+
+== Démonstration de bout en bout
+
+`scripts/demo_jalon1.cr` parcourt une instance provisionnée comme un
+navigateur (requêtes HTTP en mémoire à travers la pile de Marten, jeton CSRF
+compris) : enrôlement de l'administrateur par son invitation, plan comptable,
+fiches, exercices et journaux par l'interface puis par `Partiduo::Api`,
+activation de SKEL, accès à `/ext/SKEL/` selon le profil, réception de
+`entry.posted`. Commandes : `../partiduo-app/ETAT-PORTAGE.adoc`,
+§ « Démonstration du jalon 1 » (décision D-J1-003).
 
 == Licence
 
