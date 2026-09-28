@@ -204,7 +204,7 @@ module Demo
 
       check("plan comptable du régime (#{regime})") do
         chart = Partiduo::Api::Accounting.chart(actor)
-        # Comptes des modèles de NOALYSS (`include/sql/mod2` FR, `mod1` BE).
+        # Comptes des modèles de plan de l'application d'origine (modèle FR, modèle BE).
         expected = regime == "fr" ? {"101", "400", "410", "4456", "51", "603", "707"} : {"100", "400", "440", "451", "550", "604", "700"}
         missing = expected.to_a - chart.map(&.account.number)
         missing.empty? ? true : "comptes absents : #{missing.join(", ")} (#{chart.size} comptes)"

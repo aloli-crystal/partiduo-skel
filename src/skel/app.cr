@@ -6,7 +6,7 @@ require "./services/**"
 require "./api/**"
 
 # Extension de référence de Partiduo (ADR-003 D8), successeur de l'extension
-# `SKEL` de NOALYSS (`noalyss-plugins/skel`). Même plan qu'une application du
+# `SKEL` de l'application d'origine. Même plan qu'une application du
 # cœur (DECISIONS C1) : `manifest.cr`, `models/`, `migrations/`, `services/`
 # (interne), `api/` (contrat public `Skel::Api`), `locales/`.
 module Skel

@@ -57,4 +57,14 @@ describe "Conventions de l'extension" do
     end
     leaks.should be_empty
   end
+
+  it "ne cite le logiciel d'origine que dans la documentation (*.adoc, *.md)" do
+    # Nom assemblé (le garde-fou CI écrit `noa[l]yss`) pour ne pas se signaler lui-même.
+    word = "noa" + "lyss"
+    output = IO::Memory.new
+    status = Process.run("git", ["grep", "-il", word, "--", ".", ":!*.adoc", ":!*.md"],
+      chdir: Skel::SpecSupport::ROOT, output: output, error: Process::Redirect::Close)
+    status.exit_code.should_not eq(0)
+    output.to_s.lines.should be_empty
+  end
 end

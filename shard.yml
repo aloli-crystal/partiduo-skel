@@ -2,8 +2,8 @@ name: partiduo-skel
 version: 0.1.0
 
 description: |
-  Extension de référence de Partiduo (ADR-003 D8), successeur de SKEL de
-  NOALYSS : manifeste, permission, menu, modèle et migration, abonnement à
+  Extension de référence de Partiduo (ADR-003 D8), successeur de l'extension
+  SKEL d'origine : manifeste, permission, menu, modèle et migration, abonnement à
   entry.posted, contrat Skel::Api et page montée sous /ext/SKEL/ par
   partiduo-ui-bulma. Chaque portage d'extension part de ce dépôt.
 

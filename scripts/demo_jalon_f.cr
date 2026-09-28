@@ -524,7 +524,7 @@ module DemoF
         other = payment_line || next "ligne de l'encaissement absente"
         response = browser.post_pairs("/accounting/matching", [{"q", customer}, {"line", customer_line.to_s}, {"line", other.to_s}])
         next redirect?(response) unless response.status_code == 302
-        # Code tiré de l'identifiant du lettrage (global, comme `jnt_letter` de NOALYSS).
+        # Code tiré de l'identifiant du lettrage (global, règle reprise de l'application d'origine).
         code = Acc.entry(actor, entry.id).lines.find! { |item| item.id == customer_line }.matching_code
         expect(browser.follow(response), 200, "Lettrage #{code} créé (2 lignes).")
       end
