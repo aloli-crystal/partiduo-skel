@@ -10,6 +10,10 @@ on:
     branches: [development]
   workflow_dispatch:
 
+env:
+  CRYSTAL_VERSION: 1.19.1
+  SKIP_MARTEN_CLI_PRECOMPILATION: 1
+
 jobs:
   essai:
     name: Essai (${{ matrix.variante }})
